@@ -1,3 +1,7 @@
+"""
+Implementation of the RNN Encoder and Decoder.
+"""
+
 from torch.nn.utils.rnn import pack_padded_sequence
 
 from model.base import *

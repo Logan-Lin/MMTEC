@@ -1,3 +1,7 @@
+"""
+Utility functions for pre-training.
+"""
+
 import math
 
 import torch

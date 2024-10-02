@@ -1,3 +1,7 @@
+"""
+Contrastive losses for self-supervised learning.
+"""
+
 import torch
 import torch.nn.functional as F
 from torch import nn

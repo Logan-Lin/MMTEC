@@ -1,3 +1,7 @@
+"""
+Trainer for pre-training.
+"""
+
 import math
 from time import time
 
@@ -170,34 +174,6 @@ class ContrastiveTrainer(Trainer):
         :encoders: a list of encoders. Each encoder should be able to accept a series of batch_meta input, and have a 'name' field.
         """
         super().__init__(trainer_name='contrastive', **kwargs)
-
-
-class GenerativeTrainer(Trainer):
-    """
-    Trainer for generative pre-training.
-    Contains a generate function for evaluating the recovered input.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(trainer_name='generative', **kwargs)
-        self.generation_save_dir = f'{self.data.base_path}/generation/{self.BASE_KEY}'
-
-    def generate(self, set_index, save_gen=False, **gen_params):
-        self.prepare_batch_iter(set_index)
-        self.eval_state()
-
-        gen_dicts = []
-        for batch_meta in tqdm(next_batch(self.batch_iter, self.batch_size),
-                               desc='Generating', total=self.num_iter):
-            gen_dict, gen_save_name = self.loss_func.generate(self.models, *self.prepare_batch_meta(batch_meta),
-                                                              **gen_params)
-            gen_dicts.append(gen_dict)
-        numpy_dict = {key: np.concatenate([gen_dict[key] for gen_dict in gen_dicts], 0) for key in gen_dicts[0].keys()}
-
-        create_if_noexists(self.generation_save_dir)
-        generation_save_path = f'{self.generation_save_dir}/{gen_save_name}-{SET_NAMES[set_index][1]}.npz'
-        np.savez(generation_save_path, **numpy_dict)
-        print('Saved generation to', generation_save_path)
 
 
 class MomentumTrainer(Trainer):

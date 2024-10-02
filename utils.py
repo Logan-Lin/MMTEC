@@ -1,3 +1,7 @@
+"""
+Utility functions for the project.
+"""
+
 import math
 import os
 import shutil

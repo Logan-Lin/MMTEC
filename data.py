@@ -1,3 +1,7 @@
+"""
+Data pre-processing for the dataset.
+"""
+
 import os
 import math
 import random
@@ -13,7 +17,6 @@ from scipy import sparse
 from tqdm import tqdm
 import networkx as nx
 from sklearn.utils import shuffle
-from node2vec import Node2Vec, edges
 
 from utils import create_if_noexists, remove_if_exists, intersection
 
@@ -26,20 +29,11 @@ TRIP_COLS = ['tod', 'road', 'road_prop', 'lng', 'lat', 'weekday']
 
 
 class Data:
-    def __init__(self, name):
+    def __init__(self, name, base_path, dataset_path):
         self.name = name
-        self.small = 'small' in name
 
-        if self.small:
-            self.base_path = 'sample'
-            self.dataset_path = 'sample'
-        else:
-            if os.path.exists('/nfs/srv/'):
-                self.base_path = '/nfs/srv/data1/yanlin/MMEC'
-                self.dataset_path = '/nfs/srv/data1/yanlin/Dataset/TrajWRoadNet'
-            else:
-                self.base_path = '/q/storage/yanlin/Data/MMEC'
-                self.dataset_path = '/q/storage/yanlin/Dataset/TrajWRoadNet'
+        self.base_path = base_path
+        self.dataset_path = dataset_path
 
         self.df_path = f'{self.dataset_path}/{self.name}.h5'
         self.meta_dir = f'{self.base_path}/meta/{self.name}'
@@ -188,13 +182,15 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
+    parser.add_argument('--base', help='base path', type=str, default='sample')
+    parser.add_argument('--dataset', help='dataset path', type=str, default='sample')
     parser.add_argument('-n', '--name', help='the name of the dataset', type=str, required=True)
     parser.add_argument('-t', '--types', help='the type of meta data to dump', type=str, required=True)
     parser.add_argument('-i', '--indices', help='the set index to dump meta', type=str)
 
     args = parser.parse_args()
 
-    data = Data(args.name)
+    data = Data(args.name, args.base, args.dataset)
     data.read_hdf()
     for type in args.types.split(','):
         for i in args.indices.split(','):

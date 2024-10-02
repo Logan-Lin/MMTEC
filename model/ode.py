@@ -1,3 +1,7 @@
+"""
+ODE-based models.
+"""
+
 import torchcde
 from torchdiffeq import odeint
 

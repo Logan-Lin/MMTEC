@@ -1,3 +1,7 @@
+"""
+Basic components for all models.
+"""
+
 import math
 
 import torch

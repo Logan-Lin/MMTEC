@@ -7,4 +7,3 @@ torchcde
 scikit-learn
 networkx
 gensim
-node2vec

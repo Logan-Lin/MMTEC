@@ -1,3 +1,7 @@
+"""
+Downstream trainer.
+"""
+
 import math
 from abc import abstractmethod
 from time import time

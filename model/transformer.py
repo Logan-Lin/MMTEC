@@ -1,3 +1,7 @@
+"""
+Implementation of the Transformer Encoder and Decoder.
+"""
+
 import math
 
 import numpy as np
@@ -6,7 +10,7 @@ from torch import nn
 import torch.nn.functional as F
 from einops import repeat
 
-from model.base import Encoder, Decoder, Denoiser, TimeEmbed
+from model.base import Encoder, Decoder, TimeEmbed
 from model.rnn import RnnDecoder
 
 
@@ -180,34 +184,3 @@ class TransformerDecoder(Decoder):
         else:
             mask = 1 - torch.tril(torch.ones(seq_len, seq_len)).transpose(0, 1)
         return mask.bool()
-
-
-class TransformerDenoiser(Denoiser):
-    def __init__(self, input_size, y_size, d_model, hidden_size, num_layers, num_heads):
-        super().__init__('TransDenoiser' + f'-d{d_model}-h{hidden_size}-l{num_layers}-h{num_heads}')
-
-        self.input_linear = nn.Linear(input_size, d_model)
-        self.y_linear = nn.Linear(y_size, d_model)
-        self.time_embed = TimeEmbed(d_model, d_model)
-
-        self.pos_encode = PositionalEncoding(d_model, 500)
-        encoder_layer = nn.TransformerEncoderLayer(d_model, num_heads, hidden_size, dropout=0.1, batch_first=True)
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers)
-
-        output_size = input_size
-        self.out_linear = nn.Sequential(nn.Linear(d_model, output_size, bias=False),
-                                        nn.LayerNorm(output_size),
-                                        nn.ReLU(inplace=True),
-                                        nn.Linear(output_size, output_size))
-
-    def forward(self, x, t, y):
-        x = self.input_linear(x)  # (B, L, E)
-        t = self.time_embed(t)
-        y = self.y_linear(y)
-
-        h = x + t.unsqueeze(1) + y.unsqueeze(1)
-        h += self.pos_encode(h)  # (B, L, E)
-        h = self.transformer(h)
-
-        out = self.out_linear(h)
-        return out

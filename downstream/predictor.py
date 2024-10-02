@@ -1,3 +1,7 @@
+"""
+Predictor for downstream tasks.
+"""
+
 from torch import nn
 
 

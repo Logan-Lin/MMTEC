@@ -1,3 +1,7 @@
+"""
+Implementation of theInduced Attention Encoder.
+"""
+
 from model.base import *
 
 
