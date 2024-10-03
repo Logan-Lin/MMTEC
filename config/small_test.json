@@ -2,7 +2,7 @@
     {
         "repeat": 5,
         "data": {
-            "name": "chengdu_small",
+            "name": "chengdu",
             "meta": [
                 {
                     "type": "trip"
@@ -18,8 +18,13 @@
                     "hidden_size": 128,
                     "output_size": 64,
                     "num_heads": 8,
-                    "grid_feat": 1,
-                    "aux_feats": [
+                    "dis_feats": [
+                        1
+                    ],
+                    "num_embeds": [
+                        5000
+                    ],
+                    "con_feats": [
                         0,
                         2,
                         3
@@ -40,7 +45,7 @@
             }
         ],
         "pretrain": {
-            "load": true,
+            "load": false,
             "loss": {
                 "name": "mec",
                 "config": {
@@ -62,27 +67,6 @@
                     "eps": 512
                 }
             }
-        },
-        "downstream": [
-            {
-                "task": "search",
-                "select_models": [
-                    0,
-                    1
-                ],
-                "eval_set": 2,
-                "config": {
-                    "finetune": true,
-                    "num_epoch": 50,
-                    "batch_size": 512,
-                    "lr": 1e-3,
-                    "save_prediction": false,
-                    "distance_method": "cosine",
-                    "num_target": 10000,
-                    "num_negative": 10000,
-                    "detour_portion": 0.2
-                }
-            }
-        ]
+        }
     }
 ]

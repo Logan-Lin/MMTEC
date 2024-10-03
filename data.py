@@ -22,10 +22,10 @@ from utils import create_if_noexists, remove_if_exists, intersection
 
 
 pd.options.mode.chained_assignment = None
-CLASS_COL = 'driver'
+CLASS_COL = 'class'
 SET_NAMES = [(0, 'train'), (1, 'val'), (2, 'test')]
 MIN_TRIP_LEN = 6
-TRIP_COLS = ['tod', 'road', 'road_prop', 'lng', 'lat', 'weekday']
+TRIP_COLS = ['tod', 'road', 'lng', 'lat', 'weekday']
 
 
 class Data:
@@ -49,11 +49,13 @@ class Data:
         # One set of raw dataset is composed of one HDF file with four keys.
         # The trips contains the sequences of trajectories, with three columns: trip, time, road
         self.trips = pd.read_hdf(self.df_path, key='trips')
+        self.trips['time'] = pd.to_datetime(self.trips['time'])
+
         # The trip_info contains meta information about trips. For now, this is mainly used for class labels.
         self.trip_info = pd.read_hdf(self.df_path, key='trip_info')
         # The road_info contains meta information about roads.
         self.road_info = pd.read_hdf(self.df_path, key='road_info')
-        # self.trips = pd.merge(self.trips, self.road_info[['road', 'lng', 'lat']], on='road', how='left')
+        self.trips = pd.merge(self.trips, self.road_info[['road', 'lng', 'lat']], on='road', how='left')
 
         # Add some columns to the trip
         self.trips['minutes'] = self.trips['time'].apply(lambda x: x.timestamp() / 60)
@@ -116,7 +118,7 @@ class Data:
                 arrs.append(arr)
                 valid_lens.append(valid_len)
             arrs, valid_lens = np.stack(arrs, 0), np.array(valid_lens)
-            for col_i in [0, 2, 3, 4]:
+            for col_i in [0, 2, 3]:
                 col_name = TRIP_COLS[col_i]
                 arrs[:, :, col_i] = (arrs[:, :, col_i] - self.stat.loc['mean', col_name]) / \
                     self.stat.loc['std', col_name]
@@ -128,8 +130,8 @@ class Data:
 
         elif meta_type == 'tte':
             travel_times = []
-            for _, row in tqdm(trip_info.iterrows(), desc='Gathering TTEs', total=trip_info.shape[0]):
-                travel_times.append((row['end'] - row['start']).total_seconds() / 60)
+            for _, group in tqdm(trips.groupby('trip'), desc='Gathering trips', total=len(select_trip_id)):
+                travel_times.append((group['time'].iloc[-1] - group['time'].iloc[0]).total_seconds() / 60)
             travel_times = np.array(travel_times)
             meta = [travel_times]
 

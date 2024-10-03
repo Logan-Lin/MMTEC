@@ -68,18 +68,33 @@ python main.py -c <config_file_path> --device <device_name> --base <base_path> -
 
 ## Getting Started
 
+0. Optional: Create a new virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+To deactivate the virtual environment, simply run `deactivate`.
+
 1. Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Prepare your dataset and adjust the `Data.base_path` in `data.py` to point to your data storage location.
+2. Prepare your dataset and adjust the `Data.base_path` in `data.py` to point to your meta data storage location using the `--base` flag and the dataset path using the `--dataset` parameters.
 
 3. Pre-process your data by running:
 
 ```bash
-python data.py
+python data.py -n <dataset_name> -t <meta_data_types> -i <set_indices> --base <base_path> --dataset <dataset_path>
+```
+
+For example, to pre-process the included chengdu dataset, run:
+
+```bash
+python data.py -n chengdu -t trip,class,tte -i 0,1,2 --base ./cache --dataset ./sample
 ```
 
 4. Create or modify a configuration file in the `/config` directory to set up your experiment.
@@ -87,7 +102,13 @@ python data.py
 5. Run the main script with your chosen configuration:
 
 ```bash
-python main.py -c config/your_config.json --device <device_name> --base <base_path> --dataset <dataset_path>
+python main.py -c <your_config_name> --device <device_name> --base <base_path> --dataset <dataset_path>
+```
+
+For example, to run the included configuration file `config/samll_test.json`, run:
+
+```bash
+python main.py -c small_test --device cuda:0 --base ./cache --dataset ./sample
 ```
 
 ## Extending the Framework
